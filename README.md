@@ -10,7 +10,6 @@ conda activate positional_homologs
 sudo apt install ncbi-blast+
 ```
 
-Some scripts also require BLAST to be installed.
 
 ### first-time install 
 
