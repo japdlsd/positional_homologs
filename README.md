@@ -28,14 +28,7 @@ sudo apt install ncbi-blast+
 cd raw_data
 # getting the Anopheles data
 cd anopheles2
-bash download_data.sh
-cd ../
-bash list_all_groups.sh
-
-# getting the Tuberculosis data
-cd tuberculosis
-python create_files.py
-cd ../
+bash download_genomes.sh
 ```
 
 ## Input specification
