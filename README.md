@@ -57,14 +57,14 @@ Additionally, it may contain the following parameters:
 - `selected_models`: a list of models to use to compute the stuff. Available models:
   - 00-bad-model
   - 00b-single-blob
-  - 01-gurobi-FW
-  - 03b-gurobi-native-components
-  - 04b-gurobi-native-components-pruning
+  - 01-gurobi-FW (requires Gurobi licence!)
+  - 03b-gurobi-native-components (requires Gurobi licence!)
+  - 04b-gurobi-native-components-pruning (requires Gurobi licence!)
   - 05-greedy
   - 07-iterative-color
   - 11-he2004-phylo
   - 11a-he2004-phylo-filter
-  - 12-star
+  - 12-star (requires Gurobi licence!)
 
 Example: `disambiguation/anopheles2.yml`.
 
