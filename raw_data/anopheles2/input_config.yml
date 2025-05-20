@@ -1,0 +1,16 @@
+homolog_families:
+  Aalb: "Aalb.span.bed"
+  Aatr: "Aatr.span.bed"
+  Amer: "Amer.span.bed"
+  Aste: "Aste.span.bed"
+exons: # relative to the input_config directory
+  Aalb: "Aalb.exon.bed"
+  Aatr: "Aatr.exon.bed"
+  Amer: "Amer.exon.bed"
+  Aste: "Aste.exon.bed"
+genomes: # relative to the input_config directory
+  Aalb: "Aalb.fa"
+  Aatr: "Aatr.fa"
+  Amer: "Amer.fa"
+  Aste: "Aste.fa"
+phylogeny: "phylogeny.tree"

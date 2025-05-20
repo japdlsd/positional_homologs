@@ -1,0 +1,13 @@
+output_dir: "anopheles2"
+input_data_config: "../raw_data/anopheles2/input_config.yml"
+all_gene_families: "../raw_data/anopheles2/all_gene_families.json"
+selected_models:
+  - 00-bad-model
+  - 01-gurobi-FW
+  - 03b-gurobi-native-components
+  - 04b-gurobi-native-components-pruning
+  - 05-greedy
+  - 07-iterative-color
+  - 11-he2004-phylo
+  - 11a-he2004-phylo-filter
+  - 12-star

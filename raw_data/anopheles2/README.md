@@ -1,0 +1,1 @@
+Don't forget to download the genomes! (use `bash download_genomes.sh`)

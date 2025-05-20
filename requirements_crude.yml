@@ -1,0 +1,30 @@
+name: positional_homologs
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+  - r
+  - anaconda
+  - gurobi
+dependencies:
+  - python=3.12
+  - jupyter
+  - snakemake
+  - biopython
+  - numpy
+  - scipy
+  - argh
+  - tqdm
+  - dill
+  - pandas
+  - matplotlib
+  - seaborn
+  - networkx
+  - pygraphviz
+  - mpmath
+  - scikit-learn
+  - gffutils
+  - pulp
+  - glpk
+  - gurobi
+  - pytest
