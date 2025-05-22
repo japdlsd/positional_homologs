@@ -14,7 +14,6 @@ This tool is particularly useful for:
   - Exact integer programming formulation (ILP) for optimal solutions.
   - Efficient heuristic methods for large families.
   - Adaptation of the method by *He et al. (2004)*.
-- **Benchmarking**: Validated on synthetic datasets and real genomic data from the *Anopheles* genus.
 
 ### ⚙️ Use Cases
 - Genome evolution studies.
