@@ -1,4 +1,27 @@
-# Identifying Positional Orthologs
+# 🧬 Positional Ortholog Identifier
+
+**Positional Ortholog Identifier** is a computational tool designed to identify **positional orthologs** within homologous gene families. Unlike traditional sequence similarity approaches, this method integrates **gene order (synteny)** information and family-specific context to determine which genes are true positional counterparts across genomes.
+
+This tool is particularly useful for:
+- Resolving ambiguous one-to-many or many-to-many homology relationships.
+- Refining ortholog predictions in large gene families.
+- Comparative genomics, evolutionary analysis, and genome annotation pipelines.
+
+### 🔍 Key Features
+- **Input**: Predefined homologous gene families across multiple species or genomes.
+- **Output**: A set of predicted positional orthologs for each gene family.
+- **Algorithms**:
+  - Exact integer programming formulation (ILP) for optimal solutions.
+  - Efficient heuristic methods for large families.
+  - Adaptation of the method by *He et al. (2004)* for comparison.
+- **Benchmarking**: Validated on synthetic datasets and real genomic data from the *Anopheles* genus.
+
+### ⚙️ Use Cases
+- Genome evolution studies.
+- Functional annotation transfer.
+- Phylogenomic reconstructions.
+
+
 
 ## INSTALL
 
