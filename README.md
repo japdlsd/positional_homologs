@@ -1,11 +1,27 @@
 # 🧬 Positional Ortholog Identifier
 
-**Positional Ortholog Identifier** is a computational tool designed to identify **positional orthologs** within homologous gene families. Unlike traditional sequence similarity approaches, this method integrates **gene order (synteny)** information and family-specific context to determine which genes are true positional counterparts across genomes.
+Have you ever tried to analyze gene order evolution, but found that an ortholog gene family contains far too many genes, and now you wonder, which one of three genes from organism X matches that one out of four genes from organism Y?
+Well, you are not alone. And you are in the right place!
+
+What you need is to disambiguate the gene family into **positional orthologs**.
+Positional orthologs are genes in different species that not only _evolved from a common ancestral gene_ 
+(making them orthologs), but _also have retained the same position in their respective genomes_ as that ancestral gene. 
+In other words, positional orthologs are orthologous genes that still occupy the same genomic neighborhood or 
+context as their ancestor did, despite the evolutionary changes that may have occurred elsewhere in the genome
+
+**Positional Ortholog Identifier** is a computational tool designed 
+to identify positional orthologs within homologous gene families. 
+Unlike traditional sequence similarity approaches, this method integrates **gene order (synteny)** 
+information and family-specific context to determine which genes are true positional counterparts across genomes.
+
 
 This tool is particularly useful for:
+- Analyzing gene order evolution.
 - Resolving ambiguous one-to-many or many-to-many homology relationships.
 - Refining ortholog predictions in large gene families.
 - Comparative genomics, evolutionary analysis, and genome annotation pipelines.
+
+
 
 ### 🔍 Key Features
 - **Input**: Predefined homologous gene families across multiple species or genomes.
@@ -15,44 +31,31 @@ This tool is particularly useful for:
   - Efficient heuristic methods for large families.
   - Adaptation of the method by *He et al. (2004)*.
 
-### ⚙️ Use Cases
-- Genome evolution studies.
-- Functional annotation transfer.
-- Phylogenomic reconstructions.
 
 ## Overview of the method
 
-**TL;DR** Each gene family is processed individually.
-For each gene pair inside the gene family, we compute two similarity scores: 1) **local context similarity**, and 2) **sequence similarity**.
+
+Each gene family is processed individually.
+For each gene pair inside the gene family, we compute two similarity scores: 1) **local context similarity**, 
+and 2) **sequence similarity**.
 Those are then combined into **a single composite score**. 
-We then find a way to split the gene family into clusters of positional orthologs such that the sum of the composite scores inside those clusters is maximized, and no clusters contain two genes from the same organism,
-This problem is formulated as a **Maximum Colorful Graph Partition** problem, which is solved using either an exact integer programming formulation or a heuristic method.
+We then find a way to split the gene family into clusters of positional orthologs such that the sum of the composite scores inside those clusters is maximized, and no cluster contains two genes from the same organism.
+This problem is formulated as a **Maximum Colorful Graph Partition** problem (see the paper), which is solved using either an exact integer programming formulation or a heuristic method.
+
 
 #### Local context similarity
 
-Our method is based on the clustering of genes based on their genomic context; two genes that have very similar gene sets in their neighborhood are more likely to be positional orthologs.
-Let $A = (a_1, \ldots, a_n)$ denote the gene order of a circular chromosome, where $a_i$ is the identifier of the homolog group of the $i$-th gene in the chromosome.
-Fix a position $i$ in the gene order.
-Consider the size $k+1$ set of homology group identifiers to the left of and including $a_i$.
-We refer to this set, without $a_i$, as the *left $k$-local context* of the gene $i$.
-Analogously, we define the right $k$-local context.
-The *$k$-local context* of gene $i$ is defined as the union of its left and right $k$-local contexts.
-For linear chromosomes, the left and right contexts may contain fewer than $k$ elements if the position is near an extremity.
-In this context, we can also refer to $k$ as the *radius* (or *window radius*) of the local context.
-We define the *$k$-local context similarity* between two genes as the Jaccard similarity between their $k$-local contexts.
+The local context of a gene is a set of gene families identifers that are located in the vicinity of the gene.
+The **window radius** of the local context is the number of distinct identifiers to the left and right of the gene that are included in the context.
+The local context similarity between two genes is then defined as the **Jaccard similarity** of their local contexts.
 
-As an example, consider the gene order $(2, 1, 3, 3, 4, 5, 3, 5, 7, 2, 8, 2, 4, 10, 1)$.
-The left $3$-local context of the 6th gene (with homolog group 5) is $\{4, 3, 1\}$, and its right $3$-local context is $\{3, 7, 2\}$. 
-Note that 5 is skipped in the right context, as it matches the homolog group of the gene under consideration.
-The combined $3$-local context is therefore $\{1, 2, 3, 4, 7\}$.
-The $3$-local context of the 8th gene (also from homolog group 5) is $\{1, 2, 3, 4, 7, 8\}$.
-Their $3$-local context similarity is thus $5/6$.
 
 To break ties between gene pairs with identical local context similarity, we use a secondary similarity measure based on sequence similarity.
 
 #### Sequence similiarity
 
 Let $a$ and $b$ denote the concatenated exon sequences of the two genes.
+In case of multiple transcripts, the ones with the longest total basepair lengths are used.
 Let $BS(a, b)$ be the bit-score of the best BLAST alignment between $a$ and $b$.
 Define the reciprocal score between $a$ and $b$ as
 $$d(a, b) = \dfrac{BS(a, b) + BS(b, a)}{BS(a, a) + BS(b, b)}$$
@@ -66,40 +69,29 @@ the ordered pair consisting of their $k$-local context similarity and their sequ
 Most of the methods we apply later operate on scalar similarity scores.
 To this end, we define the *linearized similarity score* between two genes as $10 S \cdot x + y$, where $(x, y)$ is the composite similarity score and $S$ is the sum of all sequence similarity scores between pairs of genes in that homolog group.
 
-### Positional ortholog identification as an optimization problem
 
-We formalize the problem of identifying positional orthologs as a maximization problem we 
-call the **Maximum Colorful Graph Partition** problem.
+## Overview of the workflow
 
-Consider a graph $G = (V, E)$ with a non-negative edge weight function $w: E \to \mathbf{R}_{+}$
-and a vertex labeling function $\lambda: V \to \mathbf{N}$.
-Let $X \subseteq V$ be a subset of vertices, and let $G_X$ be the corresponding induced subgraph 
-(i.e., $G_X$ contains all vertices from $X$ and all edges of $G$ that connect vertices in $X$).
-We denote the sum of the weights of edges in $G_X$ as
-$$
-w(X) := \sum_{e \in E(G_X)} w(e).
-$$
-We call a subset $X$ *colorful* if all labels of its vertices are distinct.
-We call a partition
-$\Xi$ of the vertices $V$ *colorful* if all its subsets are colorful.
-We denote the total weight of a partition $\Xi$ as
-$$
-w(\Xi) := \sum_{X \in \Xi} w(X),
-$$
-and refer to this quantity as the *weight of the partition* $\Xi$.
-The individual sets in the partition are called *clusters*.
+The workflow is implemented in Snakemake, a system for creating reproducible and scalable data analyses.
+The workflow consists of individual _rules_, which specify how to create a specific output file from a set of input files.
+So, the only thing you need to do is to specify the input data and the parameters for the workflow, and then run it using Snakemake.
 
-#### Maximum Colorful Graph Partition problem:
-_Given a graph $G = (V, E)$ with a non-negative edge weight function 
-$w: E \to \mathbf{R}_{+}$ and a vertex labeling function $\lambda: V \to \mathbf{N}$, 
-find a colorful partition $\Xi$ of $V$ that maximizes the total weight $w(\Xi)$._
+In terms of the input files, you will need the following things:
 
-In our setting, the vertices represent individual genes from a given homolog group, 
-the labeling function maps each gene to its organism, and the edge weight function assigns 
-the linearized similarity score between the corresponding genes.
-Each set in the resulting colorful partition then corresponds to a cluster of positional orthologs.
+- FASTA files of the genomes for each organism
+- [span BED files](#span-bed-file) of the genes with their gene families for each organism
+- [exon BED files](#exon-bed-file) of the genes with their exons for each organism
+- a phylogeny file of the organisms in the Newick format
+- [a list of gene families](#all-gene-families-file) you want to analyze in JSON format
+- [an input data config file](#input-data-config-file) in YAML format, which matches all aforementioned files together
+- [a Snakemake config file](#snakemake-config-file) in YAML format, which specifies the input data config file location and the parameters for the workflow
 
-## INSTALL
+The workflow will then create the BED [files with the disambiguated gene families](#output-specification) for each organism, as well as some intermediate files that are used during the workflow.
+
+The rest of this README file will describe how to [set up the environment](#install), [prepare](#input-specification) the input files, [run](#run) the workflow, and what the [output](#output-specification) files look like.
+
+
+### Install
 
 ```bash
 mamba env update -f requirements.yml
@@ -109,19 +101,7 @@ conda activate positional_homologs
 sudo apt install ncbi-blast+
 ```
 
-
-### first-time install 
-
-```bash
-mamba env update -f requirements_crude.yml
-conda activate positional_homologs
-conda env export | egrep -v '^prefix: ' > requirements.yml
-
-# install the BLAST tool
-sudo apt install ncbi-blast+
-```
-
-## Getting the data
+### Getting the data (for the Anopheles demo)
 
 ```bash
 cd raw_data
@@ -130,9 +110,9 @@ cd anopheles2
 bash download_genomes.sh
 ```
 
-## Input specification
+### Input specification
 
-### snakemake config file
+#### snakemake config file
 
 The config file is a YAML file that specifies the input data and parameters for the workflow. 
 Usually located in the `disambiguation` directory.
@@ -141,25 +121,27 @@ The snakemake config file should contain the following keys:
 - `output_dir`: the relative address of the output directory (to the working directory)
 - `input_data_config`: the relative address of the input data config file (to the working directory)
 - `all_gene_families`: the relative address of a JSON file that contains a single list of all gene families' names (to the working family).
+  - this file is used to limit the number of gene families to process in case you want to make a test run.
+  - there is a script `src/list_all_gene_families.py` that can be used to create this file from the input data config file.
 
 Additionally, it may contain the following parameters:
-- `window_radii`: the list of window radii for the context similarity (default=[5]).
-- `time_limit`: the time limit for the disambiguation process (in seconds) **for a single gene family** (default=180).
+- `window_radii`: the list of window radii for the context similarity (default=`[5]`).
+- `time_limit`: the time limit for the disambiguation process (in seconds) **for a single gene family** (default=`180`).
 - `selected_models`: a list of models to use to compute the stuff. Available models:
-  - 00-bad-model
-  - 00b-single-blob
-  - 01-gurobi-FW (requires Gurobi licence!)
-  - 03b-gurobi-native-components (requires Gurobi licence!)
-  - 04b-gurobi-native-components-pruning (requires Gurobi licence!)
-  - 05-greedy
-  - 07-iterative-color
-  - 11-he2004-phylo
-  - 11a-he2004-phylo-filter
-  - 12-star (requires Gurobi licence!)
+  - `00-bad-model`
+  - `00b-single-blob`
+  - `01-gurobi-FW` (requires Gurobi licence!)
+  - `03b-gurobi-native-components` (requires Gurobi licence!)
+  - `04b-gurobi-native-components-pruning` (requires Gurobi licence!)
+  - `05-greedy`
+  - `07-iterative-color`
+  - `11-he2004-phylo`
+  - `11a-he2004-phylo-filter`
+  - `12-star` (requires Gurobi licence!)
 
 Example: `disambiguation/anopheles2.yml`.
 
-### input data config file
+#### input data config file
 
 The input data config file is a YAML file that specifies the input data for the workflow.
 Usually located in the `raw_data/<experiment>` directory.
@@ -174,14 +156,14 @@ All file paths in this file are relative to the **input data config file**.
 
 Example: `raw_data/anopheles2/input_config.yml`.
 
-### All gene families file
+#### All gene families file
 
 A JSON file that contains a single list of all gene families' names.
 Usually located in the `raw_data/<experiment>` directory.
 
 Example: `raw_data/anopheles2/all_gene_families.json`.
 
-### span BED file
+#### span BED file
 
 A BED file where each line corresponds to a gene in a particular organism. The columns are:
 
@@ -195,7 +177,7 @@ A BED file where each line corresponds to a gene in a particular organism. The c
 
 Examples: `raw_data/anopheles2/*.span.bed`.
 
-### exon BED file
+#### exon BED file
 
 A BED file where each line corresponds to a gene exon in a particular organism. The columns are:
 
@@ -208,27 +190,39 @@ A BED file where each line corresponds to a gene exon in a particular organism. 
 
 Examples: `raw_data/anopheles2/*.exon.bed`.
 
-## Output specification
+### Run
 
-The output of the workflow is a directory that contains the following files:
+```bash
+cd disambiguation
+conda activate positional_homologs
+snakemake -j16 --snakefile ../workflows/disambiguation.smk --configfile <your_config>.yml --printshellcmds --scheduler=greedy
+```
+
+For anopheles data, you can use the following command:
+
+```bash
+cd disambiguation
+conda activate positional_homologs
+snakemake -j16 --snakefile ../workflows/disambiguation.smk --configfile anopheles2.yml --printshellcmds --scheduler=greedy
+```
+
+
+### Output specification
+
+These are probably the only files you are interested in:
+- `results/<model>/wr_<window_radius>/<organism_name>.bed` - a BED file that contains the **disambiguated gene spans for the organism**
+  - the only difference from the input span BED file is that the gene family names are replaced with the disambiguated gene family names.
+  Specifically, a gene family name is extended by a suffix `.<cluster_id>`, where `<cluster_id>` is a number.
+  Note that if there is only one cluster, the suffix is omitted.
+
+Additionally, there are some other files that are generated during the workflow:
 
 - `exons_longest_transcript/<organism_name>.bed` - a BED file that contains the exons of the longest transcript (by total basepair length) for each gene in the organism
 - `blast_matrix/<gene_family_id>/blast_matrix.json` - a JSON file that contains the BLAST matrix for the gene family
 - `similarity_matrix/<gene_family_id>/wr_<window_radius>/similarity_matrix.json` - a JSON file that contains the similarity matrix for the gene family
 - `cost_matrix/<gene_family_id>/wr_<window_radius>/single_cost.json` - a JSON file that contains the composite cost matrix for the gene family
 - `gene_families_disambiguated/<model>/wr_<window_radius>/<gene_family_id>/additional_data.json` - a JSON file that contains the data for the gene family disambiguation
-- `results/<model>/wr_<window_radius>/<organism_name>.bed` - a BED file that contains the disambiguated gene spans for the organism
 - `result_mapping_krister_format/<model>/wr_<window_radius>/mapping.json` - a JSON file that contains the mapping of the gene families to the disambiguated gene families
 
 
-## Run
 
-See `disambiguation/README.md` file for instructions on how to run the disambiguation workflow.
- 
-## Project Structure
-
-- `raw_data/` - raw data
-  - `anopheles2/` - Anopheles data
-- `disambiguation/` - full disambiguation of the homologs
-- `src/` - source code
-- `workflows/` - snakemake workflows
