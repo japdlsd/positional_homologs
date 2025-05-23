@@ -195,10 +195,10 @@ Examples: `raw_data/anopheles2/*.exon.bed`.
 ```bash
 cd disambiguation
 conda activate positional_homologs
-snakemake -j16 --snakefile ../workflows/disambiguation.smk --configfile <your_config>.yml --printshellcmds --scheduler=greedy
+snakemake -j<number_of_threads> --snakefile ../workflows/disambiguation.smk --configfile <your_config>.yml --printshellcmds --scheduler=greedy
 ```
 
-For anopheles data, you can use the following command:
+For anopheles data, you can use the following command to run the workflow with 16 threads:
 
 ```bash
 cd disambiguation
